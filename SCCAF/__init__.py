@@ -51,26 +51,28 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.svm import SVC
 
-color_long = ['#e6194b','#3cb44b','#ffe119','#0082c8','#f58231','#911eb4',\
-              '#46f0f0','#f032e6','#d2f53c','#fabebe','#008080','#e6beff',\
-              '#aa6e28','#800000','#aaffc3','#808000','#ffd8b1','#000080',\
-              '#808080','#000000', "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", \
-              "#008941", "#006FA6", "#A30059","#FFDBE5", "#7A4900", "#0000A6", \
-              "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87","#5A0007", \
-              "#809693", "#6A3A4C", "#1B4400", "#4FC601", "#3B5DFF","#4A3B53", \
-              "#FF2F80","#61615A", "#BA0900", "#6B7900", "#00C2A0", "#FFAA92", "#FF90C9", "#B903AA", "#D16100",\
-              "#DDEFFF", "#000035", "#7B4F4B", "#A1C299", "#300018", "#0AA6D8", "#013349", "#00846F",\
-              "#372101", "#FFB500", "#C2FFED", "#A079BF", "#CC0744", "#C0B9B2", "#C2FF99", "#001E09",\
-              "#00489C", "#6F0062", "#0CBD66", "#EEC3FF", "#456D75", "#B77B68", "#7A87A1", "#788D66",\
-              "#885578", "#FAD09F", "#FF8A9A", "#D157A0", "#BEC459", "#456648", "#0086ED", "#886F4C",\
-              "#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81",\
-              "#575329", "#00FECF", "#B05B6F", "#8CD0FF", "#3B9700", "#04F757", "#C8A1A1", "#1E6E00",\
-              "#7900D7", "#A77500", "#6367A9", "#A05837", "#6B002C", "#772600", "#D790FF", "#9B9700",\
-              "#549E79", "#FFF69F", "#201625", "#72418F", "#BC23FF", "#99ADC0", "#3A2465", "#922329",\
-              "#5B4534", "#FDE8DC", "#404E55", "#0089A3", "#CB7E98", "#A4E804", "#324E72"]
+color_long = [
+    '#e6194b', '#3cb44b', '#ffe119', '#0082c8', '#f58231', '#911eb4', \
+    '#46f0f0', '#f032e6', '#d2f53c', '#fabebe', '#008080', '#e6beff', \
+    '#aa6e28', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000080', \
+    '#808080', '#000000', "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", \
+    "#008941", "#006FA6", "#A30059", "#FFDBE5", "#7A4900", "#0000A6", \
+    "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87", "#5A0007", \
+    "#809693", "#6A3A4C", "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", \
+    "#FF2F80", "#61615A", "#BA0900", "#6B7900", "#00C2A0", "#FFAA92", "#FF90C9", "#B903AA", "#D16100", \
+    "#DDEFFF", "#000035", "#7B4F4B", "#A1C299", "#300018", "#0AA6D8", "#013349", "#00846F", \
+    "#372101", "#FFB500", "#C2FFED", "#A079BF", "#CC0744", "#C0B9B2", "#C2FF99", "#001E09", \
+    "#00489C", "#6F0062", "#0CBD66", "#EEC3FF", "#456D75", "#B77B68", "#7A87A1", "#788D66", \
+    "#885578", "#FAD09F", "#FF8A9A", "#D157A0", "#BEC459", "#456648", "#0086ED", "#886F4C", \
+    "#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81", \
+    "#575329", "#00FECF", "#B05B6F", "#8CD0FF", "#3B9700", "#04F757", "#C8A1A1", "#1E6E00", \
+    "#7900D7", "#A77500", "#6367A9", "#A05837", "#6B002C", "#772600", "#D790FF", "#9B9700", \
+    "#549E79", "#FFF69F", "#201625", "#72418F", "#BC23FF", "#99ADC0", "#3A2465", "#922329", \
+    "#5B4534", "#FDE8DC", "#404E55", "#0089A3", "#CB7E98", "#A4E804", "#324E72"
+]
 
 
-def run_BayesianGaussianMixture(Y, K):
+def run_BayesianGaussianMixture(Y, K, random_state=1):
     """
     For K-means clustering
 
@@ -78,12 +80,13 @@ def run_BayesianGaussianMixture(Y, K):
     -----
     Y: the expression matrix
     K: number of clusters
+    random_state: Controls the random seed given to the method chosen to initialize the parameters
 
     return
     -----
     clusters assigned to each cell.
     """
-    gmm = BayesianGaussianMixture(K, max_iter=1000)
+    gmm = BayesianGaussianMixture(K, max_iter=1000, random_state=random_state)
     gmm.fit(Y)
     return gmm.predict(Y)
 
@@ -171,9 +174,7 @@ def normalize_confmat2(cmat):
     return emat * 1.0 / s
 
 
-def cluster_adjmat(xmat,
-                   resolution=1,
-                   cutoff=0.1):
+def cluster_adjmat(xmat, resolution=1, cutoff=0.1):
     """
     Cluster the groups based on the adjacent matrix.
     Use the cutoff to discretize the matrix used to construct the adjacent graph.
@@ -195,13 +196,12 @@ def cluster_adjmat(xmat,
     """
     g = sc._utils.get_igraph_from_adjacency((xmat > cutoff).astype(int), directed=False)
     print(g)
-    part = louvain.find_partition(g, louvain.RBConfigurationVertexPartition,
-                                  resolution_parameter=resolution)
+    part = louvain.find_partition(g, louvain.RBConfigurationVertexPartition, resolution_parameter=resolution)
     groups = np.array(part.membership)
     return groups
 
 
-def msample(x, n, frac):
+def msample(x, n, frac, random_state=1):
     """
     sample the matrix by number or by fraction.
     if the fraction is larger than the sample number, use number for sampling. Otherwise, use fraction.
@@ -211,6 +211,7 @@ def msample(x, n, frac):
     x: the matrix to be split
     n: number of vectors to be sampled
     frac: fraction of the total matrix to be sampled
+    random_state: Seed for random number generator
 
     return
     -----
@@ -218,12 +219,12 @@ def msample(x, n, frac):
     """
     if len(x) <= np.floor(n / frac):
         if len(x) < 10: frac = 0.9
-        return x.sample(frac=frac)
+        return x.sample(frac=frac, random_state=random_state)
     else:
-        return x.sample(n=n)
+        return x.sample(n=n, random_state=random_state)
 
 
-def train_test_split_per_type(X, y, n=100, frac=0.8):
+def train_test_split_per_type(X, y, n=100, frac=0.8, random_state=1):
     """
     This function is identical to train_test_split, but can split the data either based on number of cells or by fraction.
 
@@ -246,7 +247,8 @@ def train_test_split_per_type(X, y, n=100, frac=0.8):
     df = pd.DataFrame(y)
     df.index = np.arange(len(y))
     df.columns = ['class']
-    c_idx = df.groupby('class').apply(lambda x: msample(x, n=n, frac=frac)).index.get_level_values(None)
+    c_idx = df.groupby('class').apply(
+        lambda x: msample(x, n=n, frac=frac, random_state=random_state)).index.get_level_values(None)
     d_idx = ~np.isin(np.arange(len(y)), c_idx)
     return X[c_idx, :], X[d_idx, :], y[c_idx], y[d_idx]
 
@@ -261,18 +263,20 @@ def SCCAF_assessment(*args, **kwargs):
 
 
 # need to check number of cells in each cluster of the training set.
-def self_projection(X, 
-                    cell_types,
-                    classifier="LR",
-                    penalty='l1',
-                    sparsity=0.5,
-                    fraction=0.5,
-                    random_state=1,
-		    solver='liblinear',
-                    n=0,
-                    cv=5,
-                    whole=False, 
-                    n_jobs=None):
+def self_projection(
+        X,
+        cell_types,
+        classifier="LR",
+        penalty='l1',
+        sparsity=0.5,
+        fraction=0.5,
+        random_state=1,
+        solver='liblinear',
+        n=0,
+        cv=5,
+        whole=False,
+        n_jobs=None
+):
     # n = 100 should be good.
     """
     This is the core function for running self-projection.
@@ -318,30 +322,31 @@ def self_projection(X,
     """
     # split the data into training and testing
     if n > 0:
-        X_train, X_test, y_train, y_test = \
-            train_test_split_per_type(X, cell_types, n=n, frac=(1 - fraction))
+        X_train, X_test, y_train, y_test = train_test_split_per_type(X, cell_types, n=n, frac=(1 - fraction),
+                                                                     random_state=random_state)
     else:
-        X_train, X_test, y_train, y_test = \
-            train_test_split(X, cell_types,
-                             stratify=cell_types, test_size=fraction)  # fraction means test size
+        # fraction means test size
+        X_train, X_test, y_train, y_test = train_test_split(X, cell_types, stratify=cell_types, test_size=fraction,
+                                                            random_state=random_state)
     # set the classifier
     if classifier == 'LR':
-        clf = LogisticRegression(random_state=1, penalty=penalty, C=sparsity, multi_class="ovr", solver=solver)
+        clf = LogisticRegression(random_state=random_state, penalty=penalty, C=sparsity, multi_class="ovr",
+                                 solver=solver)
     elif classifier == 'RF':
-        clf = RandomForestClassifier(random_state=1, n_jobs=n_jobs)
+        clf = RandomForestClassifier(random_state=random_state, n_jobs=n_jobs)
     elif classifier == 'GNB':
         clf = GaussianNB()
     elif classifier == 'GPC':
-        clf = GaussianProcessClassifier(n_jobs=n_jobs)
+        clf = GaussianProcessClassifier(random_state=random_state, n_jobs=n_jobs)
     elif classifier == 'SVM':
-        clf = SVC(probability=True)
+        clf = SVC(random_state=random_state, probability=True)
     elif classifier == 'SH':
-        clf = SGDClassifier(loss='squared_hinge', n_jobs=n_jobs)
+        clf = SGDClassifier(random_state=random_state, loss='squared_hinge', n_jobs=n_jobs)
     elif classifier == 'PCP':
-        clf = SGDClassifier(loss='perceptron', n_jobs=n_jobs)
+        clf = SGDClassifier(random_state=random_state, loss='perceptron', n_jobs=n_jobs)
     elif classifier == 'DT':
-        clf = DecisionTreeClassifier()
-    
+        clf = DecisionTreeClassifier(random_state=random_state)
+
     # mean cross validation score
     cvsm = 0
     if cv > 0:
@@ -354,18 +359,18 @@ def self_projection(X,
     print("Accuracy on the training set: %.4f" % accuracy)
     accuracy_test = clf.score(X_test, y_test)
     print("Accuracy on the hold-out set: %.4f" % accuracy_test)
-    
+
     # accuracy of the whole dataset
     if whole:
         accuracy = clf.score(X, cell_types)
         print("Accuracy on the whole set: %.4f" % accuracy)
-    
+
     # get predicted probability on the test set
     y_prob = None
     if not classifier in ['SH', 'PCP']:
         y_prob = clf.predict_proba(X_test)
     y_pred = clf.predict(X_test)
-    
+
     return y_prob, y_pred, y_test, clf, cvsm, accuracy_test
 
 
@@ -449,7 +454,7 @@ def per_cell_accuracy(X, cell_types, clf):
     for cell in df.index:
         x = np.array(df.loc[cell][cell].values)
         dy = np.concatenate((dy, x))
-    return dy/np.max(df.values, 0)
+    return dy / np.max(df.values, 0)
 
 
 def get_topmarkers(clf, names, topn=10):
@@ -468,11 +473,13 @@ def get_topmarkers(clf, names, topn=10):
     -----
     list of markers for each of the cluster.
     """
-    marker_genes = pd.DataFrame({
-        'cell_type': clf.classes_[clf.coef_.argmax(0)],
-        'gene': names,
-        'weight': clf.coef_.max(0)
-    })
+    marker_genes = pd.DataFrame(
+        {
+            'cell_type': clf.classes_[clf.coef_.argmax(0)],
+            'gene': names,
+            'weight': clf.coef_.max(0)
+        }
+    )
 
     top_markers = \
         marker_genes \
@@ -482,6 +489,7 @@ def get_topmarkers(clf, names, topn=10):
             .head(topn) \
             .sort_values(['cell_type', 'weight'], ascending=[True, False])
     return top_markers
+
 
 def eu_distance(X, gp1, gp2, cell):
     """
@@ -547,14 +555,15 @@ def get_distance_matrix(X, clusters, labels=None, metric='euclidean'):
             centers.append(np.array(X[np.where(clusters == cl)[0], :].mean(0)))
     return pairwise_distances(np.array(centers), metric=metric)
 
+
 def merge_cluster(ad, old_id, new_id, groups):
     ad.obs[new_id] = ad.obs[old_id]
     ad.obs[new_id] = ad.obs[new_id].astype('category')
     ad.obs[new_id].cat.categories = make_unique(groups.astype(str))
     ad.obs[new_id] = ad.obs[new_id].str.split('_').str[0]
     return ad
-    
-    
+
+
 def find_high_resolution(ad, resolution=4, n=100):
     cut = resolution
     while cut > 0.5:
@@ -567,18 +576,18 @@ def find_high_resolution(ad, resolution=4, n=100):
 
 
 def get_connection_matrix(ad_obs, key1, key2):
-    df = ad_obs.groupby([key1,key2]).size().to_frame().reset_index()
-    df.columns = [key1,key2,'counts']
+    df = ad_obs.groupby([key1, key2]).size().to_frame().reset_index()
+    df.columns = [key1, key2, 'counts']
     df2 = ad_obs[key2].value_counts()
     df['size'] = df2[df[key2].tolist()].tolist()
-    df['percent'] = df['counts']/df['size']
-    df = df[df['percent']>0.1]
+    df['percent'] = df['counts'] / df['size']
+    df = df[df['percent'] > 0.1]
     df2 = df.groupby(key1).size()
-    df2 = df2[df2>1]
+    df2 = df2[df2 > 1]
     df = df[df[key1].isin(df2.index)]
 
     dim = len(ad_obs[key2].unique())
-    mat = pd.DataFrame(np.zeros([dim,dim])).astype(int)
+    mat = pd.DataFrame(np.zeros([dim, dim])).astype(int)
     mat.columns = mat.columns.astype(str)
     mat.index = mat.index.astype(str)
 
@@ -586,23 +595,26 @@ def get_connection_matrix(ad_obs, key1, key2):
     grouped = df.groupby(key1)
     for name, group in grouped:
         x = group[key2]
-        if len(x)>0:
-            for i,j in list(itertools.combinations(x.tolist(), 2)):
-                mat.loc[i,j] = mat.loc[j,i] = 1
-    return mat    
+        if len(x) > 0:
+            for i, j in list(itertools.combinations(x.tolist(), 2)):
+                mat.loc[i, j] = mat.loc[j, i] = 1
+    return mat
 
 
-def SCCAF_optimize_all(ad,
-                       min_acc=0.9,
-                       R1norm_cutoff=0.5,
-                       R2norm_cutoff=0.05,
-                       R1norm_step=0.01,
-                       R2norm_step=0.001, 
-                       prefix='L1',
-                       min_i = 3,
-		       start = None,
-                       start_iter = 0,
-                       *args, **kwargs):
+def SCCAF_optimize_all(
+        ad,
+        min_acc=0.9,
+        R1norm_cutoff=0.5,
+        R2norm_cutoff=0.05,
+        R1norm_step=0.01,
+        R2norm_step=0.001,
+        prefix='L1',
+        min_i=3,
+        start=None,
+        start_iter=0,
+        random_state=42,
+        *args, **kwargs
+):
     """
     ad: `AnnData`
         The AnnData object of the expression profile.
@@ -626,75 +638,85 @@ def SCCAF_optimize_all(ad,
         The reduce step for minimum R2norm value.
     """
     acc = 0
-    #'start_iter = -1
+    # 'start_iter = -1
     if start is None:
-        start = '%s_Round%d'%(prefix, start_iter)
+        start = '%s_Round%d' % (prefix, start_iter)
         if not start in ad.obs.keys():
-            raise ValueError("`adata.obs['%s']` doesn't exist. Please assign the initial clustering first."%(start))
+            raise ValueError("`adata.obs['%s']` doesn't exist. Please assign the initial clustering first." % (start))
     else:
         if not start in ad.obs.keys():
-            raise ValueError("`adata.obs['%s']` doesn't exist. Please assign the initial clustering first."%(start))
-        ad.obs['%s_Round%d'%(prefix, start_iter)] = ad.obs[start]
-    
-    clstr_old = len(ad.obs['%s_Round%d'%(prefix, start_iter)].unique())
-    #'while acc < min_acc:
+            raise ValueError("`adata.obs['%s']` doesn't exist. Please assign the initial clustering first." % (start))
+        ad.obs['%s_Round%d' % (prefix, start_iter)] = ad.obs[start]
+
+    clstr_old = len(ad.obs['%s_Round%d' % (prefix, start_iter)].unique())
+    # 'while acc < min_acc:
+
+    import random
+    random.seed(random_state)
+    random_seed = random.sample(range(1, 2 ** 16), 256)
     for i in range(10):
-        if start_iter >0:
+        if start_iter > 0:
             print("start_iter: %d" % start_iter)
         print("R1norm_cutoff: %f" % R1norm_cutoff)
         print("R2norm_cutoff: %f" % R2norm_cutoff)
         print("Accuracy: %f" % acc)
         print("======================")
-        ad, m1, m2, acc, start_iter = SCCAF_optimize(ad=ad,
-                                                     R1norm_cutoff=R1norm_cutoff,
-                                                     R2norm_cutoff=R2norm_cutoff,
-                                                     start_iter=start_iter,
-                                                     min_acc=min_acc, 
-                                                     prefix=prefix,
-                                                     *args, **kwargs)
+        ad, m1, m2, acc, start_iter = SCCAF_optimize(
+            ad=ad,
+            R1norm_cutoff=R1norm_cutoff,
+            R2norm_cutoff=R2norm_cutoff,
+            start_iter=start_iter,
+            min_acc=min_acc,
+            prefix=prefix,
+            random_state=random_seed[i],
+            *args, **kwargs
+        )
         print("m1: %f" % m1)
         print("m2: %f" % m2)
         print("Accuracy: %f" % acc)
         R1norm_cutoff = m1 - R1norm_step
         R2norm_cutoff = m2 - R2norm_step
-        
-        clstr_new = len(ad.obs['%s_result'%prefix].unique())
-        
+
+        clstr_new = len(ad.obs['%s_result' % prefix].unique())
+
         if clstr_new >= clstr_old and i >= min_i:
             print("converged SCCAF_all!")
             break
-        
-        if acc >=min_acc:
+
+        if acc >= min_acc:
             break
-            
-            
-def SCCAF_optimize(ad,
-                   prefix='L1',
-                   use='raw',
-                   use_projection=False,
-                   R1norm_only=False,
-                   R2norm_only=False,
-                   dist_only=False,
-                   dist_not=True,
-                   plot=True,
-                   basis='umap',
-                   plot_dist=False,
-                   plot_cmat=False,
-                   mod='1',
-                   low_res = None,
-                   c_iter=3,
-                   n_iter=10,
-                   n_jobs=None,
-                   start_iter=0,
-                   sparsity=0.5,
-                   n=100,
-                   fraction=0.5,
-                   R1norm_cutoff=0.1,
-                   R2norm_cutoff=1,
-                   dist_cutoff=8,
-                   classifier="LR",
-                   mplotlib_backend=None,
-                   min_acc=1):
+
+
+def SCCAF_optimize(
+        ad,
+        prefix='L1',
+        use='raw',
+        use_projection=False,
+        R1norm_only=False,
+        R2norm_only=False,
+        dist_only=False,
+        dist_not=True,
+        plot=True,
+        basis='umap',
+        plot_dist=False,
+        plot_cmat=False,
+        mod='1',
+        low_res=None,
+        c_iter=3,
+        n_iter=10,
+        n_jobs=None,
+        start_iter=0,
+        sparsity=0.5,
+        n=100,
+        fraction=0.5,
+        R1norm_cutoff=0.1,
+        R2norm_cutoff=1,
+        dist_cutoff=8,
+        classifier="LR",
+        mplotlib_backend=None,
+        min_acc=1,
+        random_state=1
+):
     """
     This is a self-projection confusion matrix directed cluster optimization function.
 
@@ -767,6 +789,8 @@ def SCCAF_optimize(ad,
         PdfPages).
     min_acc: `float`
 		the minimum total accuracy to be achieved. Above this threshold, the optimization will stop.
+	random_state: 'int' optional (default:42)
+	    the random seed for reproductable
 
     return
     -----
@@ -782,7 +806,11 @@ def SCCAF_optimize(ad,
             raise ValueError("`adata.obsm['X_pca']` doesn't exist. Run `sc.pp.pca` first.")
         X = ad.obsm['X_pca']
     else:
-        X = ad[:,ad.var['highly_variable']].X
+        X = ad[:, ad.var['highly_variable']].X
+
+    import random
+    random.seed(random_state)
+    random_i = random.sample(range(1, 2 ** 16), 256)
 
     for i in range(start_iter, start_iter + n_iter):
         print("Round%d ..." % (i + 1))
@@ -792,12 +820,19 @@ def SCCAF_optimize(ad,
         labels = np.sort(ad.obs[old_id].unique().astype(int)).astype(str)
 
         # optimize
-        y_prob, y_pred, y_test, clf, cvsm, acc = \
-            self_projection(X, ad.obs[old_id], sparsity=sparsity, n=n,
-                            fraction=fraction, classifier=classifier, n_jobs=n_jobs)
+        y_prob, y_pred, y_test, clf, cvsm, acc = self_projection(
+            X,
+            ad.obs[old_id],
+            sparsity=sparsity,
+            n=n,
+            fraction=fraction,
+            classifier=classifier,
+            n_jobs=n_jobs,
+            random_state=random_i[i]
+        )
         accs = [acc]
         ad.obs['%s_self-projection' % old_id] = clf.predict(X)
-        
+
         if plot:
             aucs = plot_roc(y_prob, y_test, clf, cvsm=cvsm, acc=acc, title="Self-project ROC {}".format(old_id))
             if mplotlib_backend:
@@ -807,8 +842,15 @@ def SCCAF_optimize(ad,
                 plt.show()
             plt.close()
 
-            sc.pl.scatter(ad, basis=basis, color=['%s_self-projection' % old_id], show=(mplotlib_backend is None),
-                          color_map="RdYlBu_r", legend_loc='on data', frameon=False)
+            sc.pl.scatter(
+                ad,
+                basis=basis,
+                color=['%s_self-projection' % old_id],
+                show=(mplotlib_backend is None),
+                color_map="RdYlBu_r",
+                legend_loc='on data',
+                frameon=False
+            )
             if mplotlib_backend:
                 mplotlib_backend.savefig()
                 plt.clf()
@@ -820,10 +862,21 @@ def SCCAF_optimize(ad,
         old_id1 = old_id
         if use_projection:
             old_id1 = '%s_self-projection' % old_id
+
+        random.seed(random_i[i])
+        random_j = random.sample(range(1, 2 ** 16), 256)
         for j in range(c_iter - 1):
-            y_prob, y_pred, y_test, clf, _, acc = self_projection(X, ad.obs[old_id1], sparsity=sparsity, n=n,
-                                                                  fraction=fraction, classifier=classifier, cv=0,
-                                                                  n_jobs=n_jobs)
+            y_prob, y_pred, y_test, clf, _, acc = self_projection(
+                X,
+                ad.obs[old_id1],
+                sparsity=sparsity,
+                n=n,
+                fraction=fraction,
+                classifier=classifier,
+                cv=0,
+                n_jobs=n_jobs,
+                random_state=random_j[j]
+            )
             accs.append(acc)
             cmat = confusion_matrix(y_test, y_pred, clf, labels=labels)
             xmat = normalize_confmat1(cmat, mod)
@@ -848,8 +901,10 @@ def SCCAF_optimize(ad,
         if plot:
             if plot_cmat:
                 plot_heatmap_gray(cmat, 'Confusion Matrix', mplotlib_backend=mplotlib_backend)
-            plot_heatmap_gray(R1mat, 'Normalized Confusion Matrix (R1norm) - %s' % old_id, mplotlib_backend=mplotlib_backend)
-            plot_heatmap_gray(R2mat, 'Normalized Confusion Matrix (R2norm) - %s' % old_id, mplotlib_backend=mplotlib_backend)
+            plot_heatmap_gray(R1mat, 'Normalized Confusion Matrix (R1norm) - %s' % old_id,
+                              mplotlib_backend=mplotlib_backend)
+            plot_heatmap_gray(R2mat, 'Normalized Confusion Matrix (R2norm) - %s' % old_id,
+                              mplotlib_backend=mplotlib_backend)
 
         if R1norm_only:
             groups = cluster_adjmat(R1mat, cutoff=R1norm_cutoff)
@@ -857,7 +912,7 @@ def SCCAF_optimize(ad,
             groups = cluster_adjmat(R2mat, cutoff=R2norm_cutoff)
         else:
             if not low_res is None:
-                conn_mat = get_connection_matrix(ad_obs = ad.obs, key1 = low_res, key2 = old_id)
+                conn_mat = get_connection_matrix(ad_obs=ad.obs, key1=low_res, key2=old_id)
                 zmat = np.minimum.reduce([(R1mat > R1norm_cutoff), conn_mat.values])
                 groups = cluster_adjmat(zmat, cutoff=0)
             else:
@@ -868,28 +923,43 @@ def SCCAF_optimize(ad,
             ad.obs['%s_result' % prefix] = ad.obs[old_id]
             print("Converge SCCAF_optimize no. cluster!")
             break
-        
+
         merge_cluster(ad, old_id1, new_id, groups)
-        
+
         if plot:
-            sc.pl.scatter(ad, basis=basis, color=[new_id], color_map="RdYlBu_r", legend_loc='on data',
-                          show=(mplotlib_backend is None))
+            sc.pl.scatter(
+                ad,
+                basis=basis,
+                color=[new_id],
+                color_map="RdYlBu_r",
+                legend_loc='on data',
+                show=(mplotlib_backend is None)
+            )
             if mplotlib_backend:
                 mplotlib_backend.savefig()
                 plt.clf()
-        
+
         if len(np.unique(groups)) <= 1:
             ad.obs['%s_result' % prefix] = ad.obs[new_id]
             print("no clustering!")
             break
-    
+
     return ad, m1, m2, np.min(accs), i
 
 
 ######################## PLOT FUNCTIONS ################################
 
-def plot_link(ad, ymat, old_id, basis='tsne', ax=None, line_color='#ffa500', line_weight=10, plot_name=False,
-              legend_fontsize=12):
+def plot_link(
+        ad,
+        ymat,
+        old_id,
+        basis='tsne',
+        ax=None,
+        line_color='#ffa500',
+        line_weight=10,
+        plot_name=False,
+        legend_fontsize=12
+):
     centroids = {}
     Y = ad.obsm['X_%s' % basis]
 
@@ -984,13 +1054,18 @@ def sc_pl_scatter(ad, basis='tsne', color='cell'):
     df[color] = ad.obs[color].tolist()
     df[color] = df[color].astype('category')
     df[color].cat.categories = ad.obs[color].cat.categories
-    sns.lmplot('%s1' % basis,  # Horizontal axis
-               '%s2' % basis,  # Vertical axis
-               data=df,  # Data source
-               fit_reg=False,  # Don't fix a regression line
-               hue=color,  # Set color
-               scatter_kws={"marker": "o",  # Set marker style
-                            "s": 10}, palette=default_20)
+    sns.lmplot(
+        '%s1' % basis,  # Horizontal axis
+        '%s2' % basis,  # Vertical axis
+        data=df,  # Data source
+        fit_reg=False,  # Don't fix a regression line
+        hue=color,  # Set color
+        scatter_kws={
+            "marker": "o",  # Set marker style
+            "s": 10
+        },
+        palette=default_20
+    )
     return df
 
 
@@ -1019,12 +1094,12 @@ def plot_roc(y_prob, y_test, clf, plot='both', save=None, title='', colors=None,
     """
     y_prob, y_test, clf, plot=True, save=False, title ='', colors=None, cvsm=None, acc=None, fontsize=16):
     """
-    rc_aucs = [] #AUC
-    rp_aucs = [] # AUC from recall precision
-    fprs = [] #FPR
-    tprs = [] #TPR
-    prss = [] #Precision
-    recs = [] #Recall
+    rc_aucs = []  # AUC
+    rp_aucs = []  # AUC from recall precision
+    fprs = []  # FPR
+    tprs = []  # TPR
+    prss = []  # Precision
+    recs = []  # Recall
     for i, cell_type in enumerate(clf.classes_):
         fpr, tpr, _ = metrics.roc_curve(y_test == cell_type, y_prob[:, i])
         prs, rec, _ = metrics.precision_recall_curve(y_test == cell_type, y_prob[:, i])
@@ -1034,18 +1109,18 @@ def plot_roc(y_prob, y_test, clf, plot='both', save=None, title='', colors=None,
         recs.append(rec)
         rc_aucs.append(metrics.auc(fpr, tpr))
         rp_aucs.append(metrics.auc(rec, prs))
-    
+
     good_aucs = np.asarray(rc_aucs)
     good_aucs = good_aucs[~np.isnan(good_aucs)]
     min_auc_rc = np.min(good_aucs)
     max_auc_rc = np.max(good_aucs)
-    
+
     good_aucs = np.asarray(rp_aucs)
     good_aucs = good_aucs[~np.isnan(good_aucs)]
     min_auc_rp = np.min(good_aucs)
     max_auc_rp = np.max(good_aucs)
-    
-    if plot in ['both','roc','prc']:
+
+    if plot in ['both', 'roc', 'prc']:
         if colors is None:
             if len(clf.classes_) < 21:
                 colors = default_20
@@ -1054,7 +1129,7 @@ def plot_roc(y_prob, y_test, clf, plot='both', save=None, title='', colors=None,
             else:
                 colors = default_102
         if plot == 'both':
-            
+
             fig, ax = plt.subplots(1, 2, sharey=True)
             ax[0].plot([0, 1], [0, 1], color='k', ls=':')
             ax[0].set_xticks([0, 1])
@@ -1074,7 +1149,7 @@ def plot_roc(y_prob, y_test, clf, plot='both', save=None, title='', colors=None,
                 ax[1].plot(Xs[i], Ys[i], c=colors[i], lw=2, label=cell_type)
             ax[1].set_xlabel('Recall')
             ax[1].set_ylabel('Precision')
-            
+
             ax[0].annotate(r'$AUC_{min}: %.3f$' % min_auc_rc, (0.5, 0.4), fontsize=fontsize)
             ax[0].annotate(r'$AUC_{max}: %.3f$' % max_auc_rc, (0.5, 0.3), fontsize=fontsize)
             ax[1].annotate(r'$AUC_{min}: %.3f$' % min_auc_rp, (0.5, 0.4), fontsize=fontsize)
@@ -1085,7 +1160,7 @@ def plot_roc(y_prob, y_test, clf, plot='both', save=None, title='', colors=None,
             if acc:
                 ax[0].annotate("Test: %.3f" % acc, (0.5, 0.1), fontsize=fontsize)
                 ax[1].annotate("Test: %.3f" % acc, (0.5, 0.1), fontsize=fontsize)
-            
+
         else:
             fig, ax = plt.subplots()
             ax.set_xticks([0, 1])
@@ -1118,7 +1193,7 @@ def plot_roc(y_prob, y_test, clf, plot='both', save=None, title='', colors=None,
 
         if save:
             plt.savefig(save)
-        
+
     return rc_aucs
 
 
@@ -1153,9 +1228,20 @@ def check_data_matches_labels(labels, data, side):
             raise LabelMismatch('{0} labels and data do not match.{1}'.format(side, msg))
 
 
-def sankey(left, right, leftWeight=None, rightWeight=None, colorDict=None,
-           leftLabels=None, rightLabels=None, aspect=4, rightColor=False,
-           fontsize=14, figure_name=None, closePlot=False):
+def sankey(
+        left,
+        right,
+        leftWeight=None,
+        rightWeight=None,
+        colorDict=None,
+        leftLabels=None,
+        rightLabels=None,
+        aspect=4,
+        rightColor=False,
+        fontsize=14,
+        figure_name=None,
+        closePlot=False
+):
     """
     Make Sankey Diagram showing flow from left-->right
 
@@ -1202,8 +1288,8 @@ def sankey(left, right, leftWeight=None, rightWeight=None, colorDict=None,
         left = left.reset_index(drop=True)
     if isinstance(right, pd.Series):
         right = right.reset_index(drop=True)
-    df = pd.DataFrame({'left': left, 'right': right, 'leftWeight': leftWeight,
-                       'rightWeight': rightWeight}, index=range(len(left)))
+    df = pd.DataFrame({'left': left, 'right': right, 'leftWeight': leftWeight, 'rightWeight': rightWeight},
+                      index=range(len(left)))
 
     if len(df[(df.left.isnull()) | (df.right.isnull())]):
         raise NullsInFrame('Sankey graph does not support null values.')
@@ -1296,13 +1382,15 @@ def sankey(left, right, leftWeight=None, rightWeight=None, colorDict=None,
         )
     for l in rightLabels:
         plt.fill_between(
-            [xMax, 1.02 * xMax], 2 * [widths_right[l]['bottom']],
-                                 2 * [widths_right[l]['bottom'] + widths_right[l]['right']],
+            [xMax, 1.02 * xMax],
+            2 * [widths_right[l]['bottom']],
+            2 * [widths_right[l]['bottom'] + widths_right[l]['right']],
             color=colorDict[l],
             alpha=0.99
         )
         plt.text(
-            1.05 * xMax, widths_right[l]['bottom'] + 0.5 * widths_right[l]['right'],
+            1.05 * xMax,
+            widths_right[l]['bottom'] + 0.5 * widths_right[l]['right'],
             l,
             {'ha': 'left', 'va': 'center'},
             fontsize=fontsize
@@ -1320,7 +1408,8 @@ def sankey(left, right, leftWeight=None, rightWeight=None, colorDict=None,
                 ys_d = np.convolve(ys_d, 0.05 * np.ones(20), mode='valid')
                 ys_d = np.convolve(ys_d, 0.05 * np.ones(20), mode='valid')
                 ys_u = np.array(
-                    50 * [widths_left[l]['bottom'] + ns_l[l][l2]] + 50 * [widths_right[l2]['bottom'] + ns_r[l][l2]])
+                    50 * [widths_left[l]['bottom'] + ns_l[l][l2]] + 50 * [widths_right[l2]['bottom'] + ns_r[l][l2]]
+                )
                 ys_u = np.convolve(ys_u, 0.05 * np.ones(20), mode='valid')
                 ys_u = np.convolve(ys_u, 0.05 * np.ones(20), mode='valid')
 
@@ -1328,7 +1417,10 @@ def sankey(left, right, leftWeight=None, rightWeight=None, colorDict=None,
                 widths_left[l]['bottom'] += ns_l[l][l2]
                 widths_right[l2]['bottom'] += ns_r[l][l2]
                 plt.fill_between(
-                    np.linspace(0, xMax, len(ys_d)), ys_d, ys_u, alpha=0.65,
+                    np.linspace(0, xMax, len(ys_d)),
+                    ys_d,
+                    ys_u,
+                    alpha=0.65,
                     color=colorDict[lc]
                 )
     plt.gca().axis('off')
@@ -1343,24 +1435,28 @@ def sankey(left, right, leftWeight=None, rightWeight=None, colorDict=None,
 from scipy.sparse import csr_matrix
 import h5py
 
+
 def readHCA(fin):
     f = h5py.File(fin, 'r')
     data = f[list(f.keys())[0]]
-    X = csr_matrix((np.array(data.get("data")), 
-                np.array(data.get("indices")), 
-                np.array(data.get("indptr"))), 
-                shape=np.array(data.get("shape"))[::-1])
+    X = csr_matrix(
+        (
+            np.array(data.get("data")),
+            np.array(data.get("indices")),
+            np.array(data.get("indptr"))
+        ),
+        shape=np.array(data.get("shape"))[::-1]
+    )
     ad = sc.AnnData(X)
     ad.obs_names = np.array(data.get("barcodes")).astype(str)
     ad.var_names = np.array(data.get("gene_names")).astype(str)
     ad.var['ensembl_gene'] = np.array(data.get("genes")).astype(str)
-    return(ad)
-    
-    
+    return (ad)
+
+
 def sc_workflow(ad, prefix='L1', resolution=1.5, n_pcs=15, do_tsne=True):
     sc.pp.normalize_per_cell(ad, counts_per_cell_after=1e4)
-    filter_result = sc.pp.filter_genes_dispersion(
-        ad.X, min_mean=0.0125, max_mean=10, min_disp=0.25)
+    filter_result = sc.pp.filter_genes_dispersion(ad.X, min_mean=0.0125, max_mean=10, min_disp=0.25)
     sc.pl.filter_genes_dispersion(filter_result)
     print("n_HVGs: %d" % sum(filter_result.gene_subset))
     ad = ad[:, filter_result.gene_subset]
@@ -1396,8 +1492,10 @@ def sc_pp_regress_out(adata, keys, n_jobs=None, copy=False):
     """
     logg.info('regressing out'.format(tuple(keys) if type(keys) is list else keys))
     if issparse(adata.X):
-        logg.info('... sparse input is densified and may '
-                  'lead to huge memory consumption')
+        logg.info(
+            '... sparse input is densified and may '
+            'lead to huge memory consumption'
+        )
     adata = adata.copy() if copy else adata
     if isinstance(keys, str): keys = [keys]
     if issparse(adata.X):
@@ -1421,7 +1519,8 @@ def sc_pp_regress_out(adata, keys, n_jobs=None, copy=False):
     if len(var_keys) > 0:
         var_regressors = np.array(
             [adata.obs[key].values if key in var_keys
-             else adata[:, key].X for key in var_keys]).T
+             else adata[:, key].X for key in var_keys]
+        ).T
     if cat_regressors is None:
         regressors = var_regressors
         if regressors is None:
@@ -1448,8 +1547,7 @@ def sc_pp_regress_out(adata, keys, n_jobs=None, copy=False):
                 regressors_view = np.c_[regressors[:, 0], regressors[:, col_index + 1]]
             else:
                 regressors_view = regressors
-            result = sm.GLM(responses[:, col_index],
-                            regressors_view, family=sm.families.Gaussian()).fit()
+            result = sm.GLM(responses[:, col_index], regressors_view, family=sm.families.Gaussian()).fit()
             new_column = result.resid_response
         except PerfectSeparationError:  # this emulates R's behavior
             logg.warning('Encountered PerfectSeparationError, setting to 0 as in R.')
@@ -1457,8 +1555,7 @@ def sc_pp_regress_out(adata, keys, n_jobs=None, copy=False):
         return new_column
 
     def _regress_out_chunk(chunk, responses, regressors):
-        chunk_array = np.zeros((responses.shape[0], chunk.size),
-                               dtype=responses.dtype)
+        chunk_array = np.zeros((responses.shape[0], chunk.size), dtype=responses.dtype)
         for i, col_index in enumerate(chunk):
             chunk_array[:, i] = _regress_out(col_index, responses, regressors)
         return chunk_array
@@ -1468,8 +1565,7 @@ def sc_pp_regress_out(adata, keys, n_jobs=None, copy=False):
         # result_lst = Parallel(n_jobs=n_jobs)(
         #     delayed(_regress_out)(
         #         col_index, adata.X, regressors) for col_index in chunk)
-        result_lst = [_regress_out(
-            col_index, adata.X, regressors) for col_index in chunk]
+        result_lst = [_regress_out(col_index, adata.X, regressors) for col_index in chunk]
         for i_column, column in enumerate(chunk):
             adata.X[:, column] = result_lst[i_column]
     logg.info('finished')
@@ -1494,4 +1590,3 @@ def regress_out(metadata, exprs, covariate_formula, design_formula='1', rcond=-1
 
     beta = coefficients[covariate_matrix.shape[1]:]
     return exprs - design_matrix.dot(beta).T
-
